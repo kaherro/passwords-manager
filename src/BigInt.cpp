@@ -1,6 +1,7 @@
 #include "../include/BigInt.h"
 #include <iostream>
 #include <algorithm>
+#include <stdexcept>
 
 BigInt::BigInt() {
     s = ""; 
@@ -84,6 +85,32 @@ bool BigInt::operator>=(const BigInt &x) const {
     return !(*this < x); 
 }
 
+// Works only for positive results (a > b)
+BigInt BigInt::operator-(const BigInt &x) const {
+    if(*this < x) {
+        throw std::invalid_argument("First argument must be greater than second");
+    }
+
+    std::string res; 
+    int i = s.length() - 1, j = x.s.length() - 1, bor = 0; 
+    while(i >= 0) {
+        int diff = s[i] - '0' - bor; 
+        if(j >= 0) {
+            diff -= x.s[j] - '0';
+            j--;
+        }
+        if(diff < 0) {
+            diff += 10; 
+            bor = 1;
+        }
+        else bor = 0; 
+        res.push_back(diff + '0'); 
+        i--;
+    }
+    reverse(res.begin(), res.end());
+    return BigInt(res);
+}
+
 std::ostream& operator<<(std::ostream &cout, const BigInt &cur) {
     cout << cur.s;
     return cout;
@@ -91,5 +118,5 @@ std::ostream& operator<<(std::ostream &cout, const BigInt &cur) {
 
 int main() {
     BigInt x("123"), y("987");
-    std::cout << x * y;
+    std::cout << y - x;
 }
