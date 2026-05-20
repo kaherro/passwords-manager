@@ -7,6 +7,11 @@ BigInt::BigInt() {
     s = ""; 
 }
 BigInt::BigInt(std::string s) {
+    for(auto i : s) {
+        if(!(i >= '0' && i <= '9')) {
+            throw std::invalid_argument("BigInt() argument must be positive and only of numbers");
+        }
+    }
     int i = 0; 
     while(i < s.length() && s[i] == '0') {
         i++; 
@@ -111,6 +116,31 @@ BigInt BigInt::operator-(const BigInt &x) const {
     return BigInt(res);
 }
 
+BigInt BigInt::operator/(const BigInt &x) const {
+    if(x.s == "0") {
+        throw std::invalid_argument("Division by zero");
+    }
+    if(*this < x) {
+        return BigInt("0"); 
+    }
+
+    std::string res;
+    BigInt cur; 
+    for(int i = 0; i < s.length(); i++) {
+        if(cur.s == "0") {
+            cur.s = s[i];
+        }
+        else cur.s.push_back(s[i]);
+        int cnt = 0;
+        while(x <= cur) {
+            cur = cur - x; 
+            cnt++;
+        }
+        res.push_back(cnt + '0');
+    }
+    return BigInt(res); 
+}
+
 std::ostream& operator<<(std::ostream &cout, const BigInt &cur) {
     cout << cur.s;
     return cout;
@@ -118,5 +148,5 @@ std::ostream& operator<<(std::ostream &cout, const BigInt &cur) {
 
 int main() {
     BigInt x("123"), y("987");
-    std::cout << y - x;
+    std::cout << y / x;
 }
