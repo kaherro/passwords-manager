@@ -12,6 +12,11 @@ public:
     BigInt operator-(const BigInt &x) const;
     BigInt operator/(const BigInt &x) const;
 
+    BigInt& operator+=(const BigInt &x);
+    BigInt& operator*=(const BigInt &x);
+    BigInt& operator-=(const BigInt &x);
+    BigInt& operator/=(const BigInt &x);
+
     bool operator==(const BigInt &x) const;
     bool operator<(const BigInt &x) const;
     bool operator<=(const BigInt &x) const;
