@@ -11,17 +11,21 @@ public:
     BigInt operator*(const BigInt &x) const;
     BigInt operator-(const BigInt &x) const;
     BigInt operator/(const BigInt &x) const;
+    BigInt operator%(const BigInt &x) const;
 
     BigInt& operator+=(const BigInt &x);
     BigInt& operator*=(const BigInt &x);
     BigInt& operator-=(const BigInt &x);
     BigInt& operator/=(const BigInt &x);
+    BigInt& operator%=(const BigInt &x);
 
     bool operator==(const BigInt &x) const;
     bool operator<(const BigInt &x) const;
     bool operator<=(const BigInt &x) const;
     bool operator>(const BigInt &x) const;
     bool operator>=(const BigInt &x) const;
+
+    static BigInt pow(BigInt a, BigInt n, const BigInt &mod); 
 
     friend std::ostream& operator<<(std::ostream &cout, const BigInt &cur);
 };

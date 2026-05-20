@@ -141,6 +141,11 @@ BigInt BigInt::operator/(const BigInt &x) const {
     return BigInt(res); 
 }
 
+BigInt BigInt::operator%(const BigInt &x) const {
+    BigInt div = *this / x; 
+    return *this - div * x; 
+}
+
 BigInt& BigInt::operator+=(const BigInt &x) {
     *this = *this + x; 
     return *this; 
@@ -159,6 +164,23 @@ BigInt& BigInt::operator-=(const BigInt &x) {
 BigInt& BigInt::operator/=(const BigInt &x) {
     *this = *this / x; 
     return *this; 
+}
+
+BigInt& BigInt::operator%=(const BigInt &x) {
+    *this = *this % x; 
+    return *this; 
+}
+
+BigInt BigInt::pow(BigInt a, BigInt n, const BigInt &mod) {
+    BigInt b0("0"), b1("1"), b2("2"); 
+    if(n == b0) {
+        return b1; 
+    }
+    BigInt temp = BigInt::pow(a % mod, n / b2, mod) % mod;
+    if(n % b2 == b1) {
+        return (temp * temp) % mod * a % mod; 
+    }
+    return (temp * temp) % mod; 
 }
 
 std::ostream& operator<<(std::ostream &cout, const BigInt &cur) {
