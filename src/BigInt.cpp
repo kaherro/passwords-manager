@@ -61,6 +61,29 @@ BigInt BigInt::operator*(const BigInt &x) const {
     return res; 
 }
 
+bool BigInt::operator==(const BigInt &x) const {
+    return x.s == s;
+}
+
+bool BigInt::operator<(const BigInt &x) const {
+    if(s.length() != x.s.length()) {
+        return s.length() < x.s.length();
+    }
+    return s < x.s; 
+}
+
+bool BigInt::operator>(const BigInt &x) const {
+    return (x < *this); 
+}
+
+bool BigInt::operator<=(const BigInt &x) const {
+    return !(*this > x); 
+}
+
+bool BigInt::operator>=(const BigInt &x) const {
+    return !(*this < x); 
+}
+
 std::ostream& operator<<(std::ostream &cout, const BigInt &cur) {
     cout << cur.s;
     return cout;
