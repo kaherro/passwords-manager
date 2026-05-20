@@ -39,7 +39,7 @@ BigInt BigInt::operator+(const BigInt &x) const {
     }
     reverse(res.s.begin(), res.s.end()); 
     return res; 
-};
+}
 
 BigInt BigInt::operator*(const BigInt &x) const {
     if(s == "0" || x.s == "0") {
@@ -139,6 +139,26 @@ BigInt BigInt::operator/(const BigInt &x) const {
         res.push_back(cnt + '0');
     }
     return BigInt(res); 
+}
+
+BigInt& BigInt::operator+=(const BigInt &x) {
+    *this = *this + x; 
+    return *this; 
+}
+
+BigInt& BigInt::operator*=(const BigInt &x) {
+    *this = *this * x; 
+    return *this; 
+}
+
+BigInt& BigInt::operator-=(const BigInt &x) {
+    *this = *this - x; 
+    return *this; 
+}
+
+BigInt& BigInt::operator/=(const BigInt &x) {
+    *this = *this / x; 
+    return *this; 
 }
 
 std::ostream& operator<<(std::ostream &cout, const BigInt &cur) {
