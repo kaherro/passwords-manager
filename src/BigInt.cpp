@@ -23,6 +23,7 @@ BigInt::BigInt(std::string s) {
     }
     s.erase(0, i);
     if(s == "") s = "0"; 
+    if(s == "0") sign = false; 
     this->s = s; 
 }
 
