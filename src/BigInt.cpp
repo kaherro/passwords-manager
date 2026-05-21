@@ -1,12 +1,17 @@
 #include "../include/BigInt.h"
-#include <iostream>
 #include <algorithm>
 #include <stdexcept>
 
 BigInt::BigInt() {
+    sign = false; 
     s = ""; 
 }
+
 BigInt::BigInt(std::string s) {
+    if(s.size() > 1 && s[0] == '-') {
+        sign = true; 
+        s.erase(0, 1); 
+    }
     for(auto i : s) {
         if(!(i >= '0' && i <= '9')) {
             throw std::invalid_argument("BigInt() argument must be positive and only of numbers");
@@ -21,8 +26,24 @@ BigInt::BigInt(std::string s) {
     this->s = s; 
 }
 
-BigInt BigInt::operator+(const BigInt &x) const {
+BigInt BigInt::operator-() const{
+    BigInt res = *this; 
+    if(s != "0") res.sign = !res.sign; 
+    return res; 
+}
+
+BigInt BigInt::operator+(const BigInt &x) const
+{
     BigInt res; 
+    if(sign && x.sign) res.sign = true; 
+    if(sign && !x.sign) {
+        BigInt a(s), b(x.s); 
+        return b - a; 
+    }
+    if(!sign && x.sign) {
+        BigInt a(s), b(x.s); 
+        return a - b; 
+    }
     int i = s.length() - 1, j = x.s.length() - 1, rem = 0; 
     while(i >= 0 || j >= 0 || rem) {
         int sum = rem; 
@@ -38,7 +59,7 @@ BigInt BigInt::operator+(const BigInt &x) const {
         rem = sum / 10;
     }
     reverse(res.s.begin(), res.s.end()); 
-    return res; 
+    return res;
 }
 
 BigInt BigInt::operator*(const BigInt &x) const {
@@ -46,6 +67,7 @@ BigInt BigInt::operator*(const BigInt &x) const {
         return BigInt("0");
     }
     BigInt res;
+    res.sign = (sign != x.sign); 
     std::string nulls = ""; 
     for(auto num = x.s.end() - 1; num >= x.s.begin(); num--) {
         BigInt temp; 
@@ -68,14 +90,28 @@ BigInt BigInt::operator*(const BigInt &x) const {
 }
 
 bool BigInt::operator==(const BigInt &x) const {
-    return x.s == s;
+    return x.s == s && x.sign == sign;
+}
+
+bool BigInt::operator!=(const BigInt &x) const {
+    return !(*this == x); 
 }
 
 bool BigInt::operator<(const BigInt &x) const {
+    if(sign && !x.sign) return true; 
+    if(!sign && x.sign) return false; 
     if(s.length() != x.s.length()) {
-        return s.length() < x.s.length();
+        if(!sign && !x.sign) {
+            return s.length() < x.s.length();
+        }
+        if(sign && x.sign) {
+            return s.length() > x.s.length();
+        }
     }
-    return s < x.s; 
+    if(!sign && !x.sign) {
+        return s < x.s; 
+    }
+    return s > x.s; 
 }
 
 bool BigInt::operator>(const BigInt &x) const {
@@ -90,10 +126,40 @@ bool BigInt::operator>=(const BigInt &x) const {
     return !(*this < x); 
 }
 
-// Works only for positive results (a > b)
 BigInt BigInt::operator-(const BigInt &x) const {
+    if(*this == x) {
+        return BigInt("0"); 
+    }
+
+    // a - (-b)
+    if(!sign && x.sign) {
+        return *this + BigInt(x.s);
+    }
+
+    // -a - b
+    if(sign && !x.sign) {
+        BigInt res = BigInt(s) + x;
+        res.sign = true;
+        return res;
+    }
+    
+    // -a - (-b)
+    if(sign && x.sign) {
+        BigInt a(s), b(x.s);
+        if(a > b) {
+            BigInt res = a - b;
+            res.sign = true;
+            return res;
+        } else {
+            return b - a;
+        }
+    }
+    
+    // a - b, a < b
     if(*this < x) {
-        throw std::invalid_argument("First argument must be greater than second");
+        BigInt res = x - *this;
+        res.sign = true;
+        return res;
     }
 
     std::string res; 
@@ -120,10 +186,16 @@ BigInt BigInt::operator/(const BigInt &x) const {
     if(x.s == "0") {
         throw std::invalid_argument("Division by zero");
     }
-    if(*this < x) {
+    if(s < x.s) {
         return BigInt("0"); 
     }
-
+    if(sign || x.sign) {
+        BigInt res, a(s), b(x.s); 
+        if(sign && x.sign) return a / b; 
+        res = a / b; 
+        res.sign = true; 
+        return res; 
+    }
     std::string res;
     BigInt cur; 
     for(int i = 0; i < s.length(); i++) {
@@ -138,10 +210,11 @@ BigInt BigInt::operator/(const BigInt &x) const {
         }
         res.push_back(cnt + '0');
     }
-    return BigInt(res); 
+    return BigInt(res);
 }
 
 BigInt BigInt::operator%(const BigInt &x) const {
+    if(*this < x) return *this; 
     BigInt div = *this / x; 
     return *this - div * x; 
 }
@@ -176,19 +249,25 @@ BigInt BigInt::pow(BigInt a, BigInt n, const BigInt &mod) {
     if(n == b0) {
         return b1; 
     }
-    BigInt temp = BigInt::pow(a % mod, n / b2, mod) % mod;
+    BigInt temp = pow(a % mod, n / b2, mod) % mod;
     if(n % b2 == b1) {
-        return (temp * temp) % mod * a % mod; 
+        return ((temp * temp) % mod * (a % mod)) % mod; 
     }
     return (temp * temp) % mod; 
 }
 
-std::ostream& operator<<(std::ostream &cout, const BigInt &cur) {
-    cout << cur.s;
-    return cout;
+BigInt BigInt::gcd(BigInt a, BigInt b) {
+    BigInt b0("0");
+    while (b > b0) {
+        BigInt r = a % b;
+        a = b;
+        b = r;
+    }
+    return a; 
 }
 
-int main() {
-    BigInt x("123"), y("987");
-    std::cout << y / x;
+std::ostream& operator<<(std::ostream &cout, const BigInt &cur) {
+    if(cur.sign) std::cout << '-';  
+    std::cout << cur.s;
+    return cout;
 }
