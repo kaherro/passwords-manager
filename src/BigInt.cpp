@@ -68,7 +68,7 @@ BigInt BigInt::operator*(const BigInt &x) const {
         return BigInt("0");
     }
     BigInt res;
-    res.sign = (sign != x.sign); 
+    bool res_sign = (sign != x.sign); 
     std::string nulls = ""; 
     for(auto num = x.s.end() - 1; num >= x.s.begin(); num--) {
         BigInt temp; 
@@ -87,6 +87,7 @@ BigInt BigInt::operator*(const BigInt &x) const {
         nulls += '0';
         res = res + temp;
     }
+    res.sign = res_sign && res.s != "0";
     return res; 
 }
 
@@ -187,7 +188,8 @@ BigInt BigInt::operator/(const BigInt &x) const {
     if(x.s == "0") {
         throw std::invalid_argument("Division by zero");
     }
-    if(s < x.s) {
+    BigInt a_abs(s), b_abs(x.s); 
+    if(a_abs < b_abs) {
         return BigInt("0"); 
     }
     if(sign || x.sign) {
@@ -205,8 +207,8 @@ BigInt BigInt::operator/(const BigInt &x) const {
         }
         else cur.s.push_back(s[i]);
         int cnt = 0;
-        while(x <= cur) {
-            cur = cur - x; 
+        while(b_abs <= cur) {
+            cur = cur - b_abs; 
             cnt++;
         }
         res.push_back(cnt + '0');
