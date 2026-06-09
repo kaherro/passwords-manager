@@ -34,4 +34,7 @@ public:
     static BigInt gcd(BigInt a, BigInt b);
 
     friend std::ostream& operator<<(std::ostream &cout, const BigInt &cur);
+
+    int to_int();
+    std::string to_string(); 
 };

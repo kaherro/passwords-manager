@@ -274,3 +274,15 @@ std::ostream& operator<<(std::ostream &cout, const BigInt &cur) {
     std::cout << cur.s;
     return cout;
 }
+
+int BigInt::to_int() {
+    int res = 0;
+    for (auto c : s) {
+        res = res * 10 + (c - '0');
+    }
+    return sign ? -res : res;
+}
+
+std::string BigInt::to_string() {
+    return s; 
+}
