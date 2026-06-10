@@ -67,9 +67,13 @@ bool rsa::miller_rabin(BigInt n, int k) {
 }
 
 BigInt rsa::generate_prime() {
-    long long random_num1 = 1e15 + (std::rand() % (long long)(9999999999999999 - 1e15 + 1));
-    long long random_num2 = 1e15 + (std::rand() % (long long)(9999999999999999 - 1e15 + 1));
-    BigInt key = BigInt(std::to_string(random_num1) + std::to_string(random_num2));
+    srand(time(0));
+    std::string key_s = ""; 
+    for(int i = 0; i < 4; i++) {
+        long long random_num = 1e9 + (std::rand() % (long long)(9999999999 - 1e9 + 1));
+        key_s += std::to_string(random_num); 
+    }
+    BigInt key(key_s);
     if (key % BigInt("2") == BigInt("0")) {
         key += BigInt("1");
     }
@@ -80,15 +84,17 @@ BigInt rsa::generate_prime() {
 }
 
 
-void rsa::generate_keys(BigInt &e, BigInt &d, BigInt &n) {
+BigInt rsa::generate_keys(BigInt &e, BigInt &d, BigInt &n) {
     BigInt p = generate_prime(); 
-    BigInt q = generate_prime(); 
+    // BigInt q = generate_prime(); 
+    BigInt q("214748364721474836472147483659");
     n = p * q; 
     BigInt phi = (p - BigInt("1")) * (q - BigInt("1")); 
     for(e = BigInt("2"); e < phi; e += BigInt("1")) {
         if(BigInt::gcd(e, phi) == BigInt("1")) break;
     }
     d = mod_inverse(e, phi); 
+    return p; 
 }
 
 BigInt rsa::get_hash_num(std::string msg, const BigInt k) {
