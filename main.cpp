@@ -192,6 +192,25 @@ void show_passwords() {
     getch(); 
 }
 
+void generate_password() {
+    clear();
+    printw("Generating your password..."); 
+    std::string characters = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
+                            "1234567890-=`~!@#$%^&*()_+[]{};:'/?.>,<" + '"'; 
+    std::string password = "";
+    cout << characters.size();  
+    srand(time(0));
+    for(int i = 0; i < 20; i++) {
+        password += characters[rand() % 58]; 
+    }
+    std::string answer = "Your generated password: " + password;
+    clear();
+    printw("%s\n", answer.c_str());
+    printw("\n"); 
+    printw("Press any key to return to menu..."); 
+    getch(); 
+}
+
 int main() {
     initscr();
     keypad(stdscr, TRUE);
@@ -205,7 +224,7 @@ int main() {
     std::vector<menu_item> main_menu_options = {
         {"Check my passwords", show_passwords}, 
         {"Generate a new key", generate_key}, 
-        {"Generate a new password"}, 
+        {"Generate a new password", generate_password}, 
         {"Add your own password", add_password}, 
         {"Exit password manager", [](){ endwin(); exit(0); }}
     };
