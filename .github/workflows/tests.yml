@@ -26,7 +26,7 @@ jobs:
         run: g++ tests/test_BigInt.cpp src/BigInt.cpp -I include -o test_BigInt
 
       - name: Compile RSA tests
-        run: g++ tests/test_rsa.cpp src/rsa.cpp -I include -o test_rsa
+        run: g++ tests/test_rsa.cpp src/rsa.cpp src/BigInt.cpp -I include -o test_rsa
 
       - name: Run BigInt tests
         run: ./test_BigInt
