@@ -1,4 +1,4 @@
-#include "../include/BigInt.h"
+#include "BigInt.h"
 #include <cassert>
 
 void test_contructor() {
