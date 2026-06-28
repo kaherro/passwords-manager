@@ -86,8 +86,7 @@ BigInt rsa::generate_prime() {
 
 BigInt rsa::generate_keys(BigInt &e, BigInt &d, BigInt &n) {
     BigInt p = generate_prime(); 
-    // BigInt q = generate_prime(); 
-    BigInt q("1246437578219503247526754667241223523411");
+    BigInt q = generate_prime(); 
     n = p * q; 
     BigInt phi = (p - BigInt("1")) * (q - BigInt("1")); 
     for(e = BigInt("2"); e < phi; e += BigInt("1")) {

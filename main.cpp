@@ -7,15 +7,12 @@
 #include <db_manager.h>
 using namespace std;
 
-BigInt e, d, n; 
-db_manager db; 
-
 struct menu_item {
     std::string title;
     std::function<void()> action = nullptr;  
 };
 
-void show_menu(const std::string menu_title, const vector<menu_item> &items) {
+void show_menu(const std::string &menu_title, const vector<menu_item> &items) {
     int cur_option = 0, menu_size = items.size(); 
     while(true) {
         clear();
@@ -48,7 +45,7 @@ void show_menu(const std::string menu_title, const vector<menu_item> &items) {
     }
 }
 
-void generate_key() {
+void generate_key(BigInt &e, BigInt &d, BigInt &n) {
     clear(); 
     printw("Generating public key..."); 
     refresh(); 
@@ -96,7 +93,7 @@ BigInt read_public_key() {
     return BigInt(key); 
 }
 
-void add_password() {
+void add_password(BigInt &e, BigInt &d, BigInt &n, db_manager &db) {
     BigInt public_key = read_public_key(); 
     clear();
     std::string title; 
@@ -171,7 +168,7 @@ void add_password() {
     getch();
 }
 
-void show_passwords() {
+void show_passwords(BigInt &e, BigInt &d, BigInt &n, db_manager &db) {
     BigInt public_key = read_public_key(); 
     rsa::use_existing_public_key(public_key, e, d, n); 
     std::vector<std::pair<std::string, std::string>> passwords = db.get_all_passwords(); 
@@ -198,7 +195,6 @@ void generate_password() {
     std::string characters = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM"
                             "1234567890-=`~!@#$%^&*()_+[]{};:'/?.>,<" + '"'; 
     std::string password = "";
-    cout << characters.size();  
     srand(time(0));
     for(int i = 0; i < 20; i++) {
         password += characters[rand() % 58]; 
@@ -212,6 +208,9 @@ void generate_password() {
 }
 
 int main() {
+    BigInt e, d, n; 
+    db_manager db; 
+
     initscr();
     keypad(stdscr, TRUE);
     noecho();
@@ -222,10 +221,10 @@ int main() {
     init_pair(2, COLOR_RED, COLOR_BLACK); 
 
     std::vector<menu_item> main_menu_options = {
-        {"Check my passwords", show_passwords}, 
-        {"Generate a new key", generate_key}, 
-        {"Generate a new password", generate_password}, 
-        {"Add your own password", add_password}, 
+        {"Check my passwords", [&](){ show_passwords(e, d, n, db); }}, 
+        {"Generate a new key", [&](){ generate_key(e, d, n); }}, 
+        {"Generate a new password", [&](){ generate_password(); }}, 
+        {"Add your own password", [&](){ add_password(e, d, n, db); }}, 
         {"Exit password manager", [](){ endwin(); exit(0); }}
     };
 
