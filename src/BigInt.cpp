@@ -217,7 +217,6 @@ BigInt BigInt::operator/(const BigInt &x) const {
 }
 
 BigInt BigInt::operator%(const BigInt &x) const {
-    if(*this < x) return *this; 
     BigInt div = *this / x; 
     return *this - div * x; 
 }
