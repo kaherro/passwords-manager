@@ -22,8 +22,14 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      - name: Compile tests
-        run: g++ tests/test_BigInt.cpp src/BigInt.cpp -o test_BigInt
+      - name: Compile BigInt tests
+        run: g++ tests/test_BigInt.cpp src/BigInt.cpp -I include -o test_BigInt
 
-      - name: Run tests
+      - name: Compile RSA tests
+        run: g++ tests/test_rsa.cpp src/rsa.cpp -I include -o test_rsa
+
+      - name: Run BigInt tests
         run: ./test_BigInt
+
+      - name: Run RSA tests
+        run: ./test_rsa
