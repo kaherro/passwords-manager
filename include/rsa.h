@@ -3,7 +3,6 @@
 namespace rsa {
     BigInt mod_inverse(BigInt e, BigInt phi);
     BigInt generate_keys(BigInt &e, BigInt &d, BigInt &n);
-    void use_existing_public_key(BigInt &p, BigInt &e, BigInt &d, BigInt &n);
 
     BigInt encrypt(std::string m, BigInt e, BigInt n);
     std::string decrypt(BigInt c, BigInt d, BigInt n); 
