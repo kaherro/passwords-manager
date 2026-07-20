@@ -96,16 +96,6 @@ BigInt rsa::generate_keys(BigInt &e, BigInt &d, BigInt &n) {
     return p; 
 }
 
-void rsa::use_existing_public_key(BigInt &p, BigInt &e, BigInt &d, BigInt &n) {
-    BigInt q("1246437578219503247526754667241223523411");
-    n = p * q; 
-    BigInt phi = (p - BigInt("1")) * (q - BigInt("1")); 
-    for(e = BigInt("2"); e < phi; e += BigInt("1")) {
-        if(BigInt::gcd(e, phi) == BigInt("1")) break;
-    }
-    d = mod_inverse(e, phi); 
-}
-
 BigInt rsa::get_hash_num(std::string msg, const BigInt k) {
     BigInt h("0"); 
     for(char c : msg) {
