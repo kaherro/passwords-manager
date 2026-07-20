@@ -45,26 +45,30 @@ void show_menu(const std::string &menu_title, const vector<menu_item> &items) {
     }
 }
 
-void generate_key(BigInt &e, BigInt &d, BigInt &n) {
+void generate_key(BigInt &e, BigInt &d, BigInt &n, db_manager &db) {
     clear(); 
-    printw("Generating public key..."); 
+    printw("Generating a new RSA key pair..."); 
     refresh(); 
-    std::string msg = "Your new public key is: " + rsa::generate_keys(e, d, n).to_string(); 
+    rsa::generate_keys(e, d, n);
+    db.save_public_key(e.to_string(), n.to_string());
     clear(); 
+    std::string msg = "Your PRIVATE key is: " + d.to_string();
     printw("%s\n", msg.c_str());
     attron(COLOR_PAIR(2)); 
-    printw("Warning: Make sure you saved the key, otherwise you won't be able to get the correct passwords.\n\n"); 
+    printw("Warning: this is your PRIVATE key. Save it somewhere safe (e.g. a physical notebook).\n");
+    printw("Anyone who has it can read all your saved passwords. It is never stored on disk.\n");
+    printw("If you lose it, your saved passwords cannot be recovered.\n\n");
     attroff(COLOR_PAIR(2)); 
     printw("Press any key to return to menu...");
     refresh();
     getch(); 
 }
 
-BigInt read_public_key() {
+BigInt read_private_key() {
     clear();
     std::string key;
     while(true) {
-        printw("Enter your public key (make sure to type it correctly, otherwise you won't be able to get the correct passwords)\n");
+        printw("Enter your private key to continue\n");
         refresh();
         char buf[256];
         echo(); 
@@ -76,16 +80,16 @@ BigInt read_public_key() {
             if(!(c - '0' >= 0 && c - '0' <= 9)) {
                 tr = false; 
                 clear();
-                printw("Public key format is incorrect. Only numbers are able. Try again.\n"); 
+                printw("Key format is incorrect. Only numbers are allowed. Try again.\n"); 
                 refresh(); 
                 break; 
             }
             key += c; 
         }
-        if(key.length() > 50) {
+        if(key.length() > 100) {
             key.clear(); 
             clear();
-            printw("Public key format is incorrect. Only numbers are able. Try again.\n"); 
+            printw("Key format is incorrect. Only numbers are allowed. Try again.\n");
             tr = false; 
         }
         if(tr) break;
@@ -93,8 +97,17 @@ BigInt read_public_key() {
     return BigInt(key); 
 }
 
-void add_password(BigInt &e, BigInt &d, BigInt &n, db_manager &db) {
-    BigInt public_key = read_public_key(); 
+void add_password(db_manager &db) {
+    auto stored_key = db.load_public_key();
+    if (!stored_key) {
+        clear();
+        printw("No key found yet. Please generate a key first.\n");
+        printw("Press any key to return to menu...");
+        getch();
+        return;
+    }
+    BigInt e(stored_key->first);
+    BigInt n(stored_key->second);
     clear();
     std::string title; 
     while(true) {
@@ -153,7 +166,6 @@ void add_password(BigInt &e, BigInt &d, BigInt &n, db_manager &db) {
         if(tr) break;
     }
     refresh();
-    rsa::use_existing_public_key(public_key, e, d, n); 
     BigInt enc = rsa::encrypt(password, e, n); 
     bool result = db.add_password(title, enc.to_string()); 
     if(result) {
@@ -168,9 +180,17 @@ void add_password(BigInt &e, BigInt &d, BigInt &n, db_manager &db) {
     getch();
 }
 
-void show_passwords(BigInt &e, BigInt &d, BigInt &n, db_manager &db) {
-    BigInt public_key = read_public_key(); 
-    rsa::use_existing_public_key(public_key, e, d, n); 
+void show_passwords(db_manager &db) {
+    auto stored_key = db.load_public_key();
+    if (!stored_key) {
+        clear();
+        printw("No key found yet. Please generate a key first.\n");
+        printw("Press any key to return to menu...");
+        getch();
+        return;
+    }
+    BigInt d = read_private_key();
+    BigInt n(stored_key->second);
     std::vector<std::pair<std::string, std::string>> passwords = db.get_all_passwords(); 
     clear(); 
     printw("================================\n");
@@ -221,10 +241,10 @@ int main() {
     init_pair(2, COLOR_RED, COLOR_BLACK); 
 
     std::vector<menu_item> main_menu_options = {
-        {"Check my passwords", [&](){ show_passwords(e, d, n, db); }}, 
-        {"Generate a new key", [&](){ generate_key(e, d, n); }}, 
+        {"Check my passwords", [&](){ show_passwords(db); }}, 
+        {"Generate a new key", [&](){ generate_key(e, d, n, db); }}, 
         {"Generate a new password", [&](){ generate_password(); }}, 
-        {"Add your own password", [&](){ add_password(e, d, n, db); }}, 
+        {"Add your own password", [&](){ add_password(db); }}, 
         {"Exit password manager", [](){ endwin(); exit(0); }}
     };
 
