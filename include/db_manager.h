@@ -1,6 +1,6 @@
-
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <sqlite3.h>
 #include <stdexcept>
 #include <string>
@@ -19,4 +19,7 @@ public:
     db_manager();
     bool add_password(const std::string& title, const std::string& password);
     std::vector<std::pair<std::string, std::string>> get_all_passwords() const;
+
+    bool save_public_key(const std::string &e, const std::string &n);
+    std::optional<std::pair<std::string, std::string>> load_public_key() const;
 };
